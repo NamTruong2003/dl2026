@@ -1,0 +1,113 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage[english]{babel}
+
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{Labwork 1 Report}
+\author{Truong Quang Nam}
+
+
+\begin{document}
+\maketitle
+
+
+
+\section{Introduction}
+
+
+
+Gradient descent is a mathematical technique that iteratively finds the weights and bias that produce the model with the lowest loss. Gradient descent finds the best weight and bias by repeating the following process for a number of user-defined iterations
+
+\section{Implementation}
+
+\subsection{Gradient Descent Formula}
+
+X = X - r x f'(X)
+
+X: input
+r: learning rate
+f(X): output 
+f'(X): derivative of f(x)
+
+\subsection{Implement on $f(X) = X^2$}
+In this step, we define the function to compute f(X) and it's derivative
+\begin{lstlisting}
+def y(x):
+    return x*x
+def y_p(x):
+    return 2*x  
+
+\end{lstlisting}
+
+
+After that, I apply the formula to display update X make f(X) smaller by using gradient descent, update X until f(X) \textless  0.01
+
+\begin{lstlisting}
+def gradient_descent(x,lr):
+    time = 0
+    while y(x) > 0.01:
+        x = x - lr * y_p(x)
+        time = time + 1
+        print(f"Epoch {time} x:{x:.3f} f(x):{y(x):.3f}")
+
+\end{lstlisting}
+\subsection{Result on different learning rate}
+\begin{table}[h!]
+\centering
+\caption{Optimization Results (Learning Rate = 0.1)}
+\label{tab:optimization_results}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Epoch} & \textbf{x} & \textbf{f(x)} \\ \hline
+1  & 8.000 & 64.000 \\ \hline
+2  & 6.400 & 40.960 \\ \hline
+3  & 5.120 & 26.214 \\ \hline
+4  & 4.096 & 16.777 \\ \hline
+5  & 3.277 & 10.737 \\ \hline
+6  & 2.621 & 6.872  \\ \hline
+7  & 2.097 & 4.398  \\ \hline
+8  & 1.678 & 2.815  \\ \hline
+9  & 1.342 & 1.801  \\ \hline
+10 & 1.074 & 1.153  \\ \hline
+11 & 0.859 & 0.738  \\ \hline
+12 & 0.687 & 0.472  \\ \hline
+13 & 0.550 & 0.302  \\ \hline
+14 & 0.440 & 0.193  \\ \hline
+15 & 0.352 & 0.124  \\ \hline
+16 & 0.281 & 0.079  \\ \hline
+17 & 0.225 & 0.051  \\ \hline
+18 & 0.180 & 0.032  \\ \hline
+19 & 0.144 & 0.021  \\ \hline
+20 & 0.115 & 0.013  \\ \hline
+21 & 0.092 & 0.009  \\ \hline
+\end{tabular}
+\end{table}
+\begin{table}[h!]
+\centering
+\caption{Optimization Results (Learning Rate = 0.2)}
+\label{tab:optimization_02}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Epoch} & \textbf{x} & \textbf{f(x)} \\ \hline
+1  & 6.000 & 36.000 \\ \hline
+2  & 3.600 & 12.960 \\ \hline
+3  & 2.160 & 4.666  \\ \hline
+4  & 1.296 & 1.680  \\ \hline
+5  & 0.778 & 0.605  \\ \hline
+6  & 0.467 & 0.218  \\ \hline
+7  & 0.280 & 0.078  \\ \hline
+8  & 0.168 & 0.028  \\ \hline
+9  & 0.101 & 0.010  \\ \hline
+10 & 0.060 & 0.004  \\ \hline
+\end{tabular}
+\end{table}
+
+\end{document}

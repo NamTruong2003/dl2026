@@ -1,0 +1,213 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage[english]{babel}
+
+\usepackage[
+letterpaper,
+top=2cm,
+bottom=2cm,
+left=3cm,
+right=3cm,
+marginparwidth=1.75cm
+]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{Linear Regression using Gradient Descent}
+\author{Truong Quang Nam}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Linear Regression is a supervised machine learning algorithm used to predict continuous values. The model attempts to find the best linear relationship between input variable $x$ and output variable $y$.
+
+The equation of linear regression is:
+
+\[
+y = w_1x + w_0
+\]
+
+Where:
+
+\begin{itemize}
+    \item $w_1$ is the weight (slope)
+    \item $w_0$ is the bias (intercept)
+\end{itemize}
+
+To optimize the parameters, Gradient Descent is used to minimize the loss function.
+
+\section{Implementation}
+
+\subsection{Loss Function}
+
+The loss function used in this implementation is Mean Squared Error (MSE):
+
+\[
+L(w_0,w_1,x,y) = \frac{1}{2}(w_1x + w_0 - y)^2
+\]
+
+The total cost function is:
+
+\[
+J(w_0,w_1) = \frac{1}{n}\sum_{i=1}^{n}L(w_0,w_1,x_i,y_i)
+\]
+
+\subsection{Read Dataset}
+
+The dataset is loaded from a CSV file.
+
+\begin{lstlisting}
+def readcsv(f):
+    x = []
+    y = []
+
+    with open(f, "r") as file:
+        lines = file.readlines()[1:]
+
+        for line in lines:
+            xi, yi = line.strip().split(",")
+
+            x.append(float(xi))
+            y.append(float(yi))
+
+    return x, y
+\end{lstlisting}
+
+\subsection{Loss Function Implementation}
+
+\begin{lstlisting}
+def L(w0, w1, x, y):
+    return 0.5 * (w1 * x + w0 - y) ** 2
+
+def J(w0, w1, x, y):
+    total = 0
+    n = len(x)
+
+    for i in range(n):
+        total += L(w0, w1, x[i], y[i])
+
+    return total / n
+\end{lstlisting}
+
+\subsection{Gradient Calculation}
+
+The derivative of the loss function with respect to $w_0$ and $w_1$ is implemented below.
+
+\begin{lstlisting}
+def dw0(w0, w1, x, y):
+    total = 0
+    n = len(x)
+
+    for i in range(n):
+        total += (w1 * x[i] + w0 - y[i])
+
+    return total / n
+
+def dw1(w0, w1, x, y):
+    total = 0
+    n = len(x)
+
+    for i in range(n):
+        total += x[i] * (w1 * x[i] + w0 - y[i])
+
+    return total / n
+\end{lstlisting}
+
+\subsection{Gradient Descent Algorithm}
+
+The weights are updated iteratively until the loss difference becomes smaller than threshold $t$.
+
+\[
+w = w - r \times \frac{dJ}{dw}
+\]
+
+Where:
+
+\begin{itemize}
+    \item $r$ is the learning rate
+    \item $\frac{dJ}{dw}$ is the gradient
+\end{itemize}
+
+\begin{lstlisting}
+def gradient_descent(w0, w1, x, y, r, t, max_epoch=100000):
+    epoch = 0
+
+    old_loss = float("inf")
+    new_loss = J(w0, w1, x, y)
+
+    while abs(old_loss - new_loss) > t and epoch < max_epoch:
+
+        old_loss = new_loss
+
+        d0 = dw0(w0, w1, x, y)
+        d1 = dw1(w0, w1, x, y)
+
+        w0 = w0 - r * d0
+        w1 = w1 - r * d1
+
+        new_loss = J(w0, w1, x, y)
+
+        epoch += 1
+
+        if epoch % 100 == 0:
+            print(
+                f"Epoch {epoch} "
+                f"w0:{w0:.4f} "
+                f"w1:{w1:.4f} "
+                f"Loss:{new_loss:.6f}"
+            )
+
+    return w0, w1
+\end{lstlisting}
+
+\section{Result}
+
+Initial parameters:
+
+\begin{itemize}
+    \item $w_0 = 0$
+    \item $w_1 = 1$
+    \item Learning rate $r = 0.0001$
+\end{itemize}
+
+Example training output:
+
+\begin{table}[h!]
+\centering
+\caption{Training Process}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Epoch & $w_0$ & $w_1$ & Loss \\ \hline
+100 & 0.1093 & 2.0649 & 254.832 \\ \hline
+200 & 0.2007 & 2.0634 & 253.997 \\ \hline
+300 & 0.2919 & 2.0619 & 253.164 \\ \hline
+400 & 0.3830 & 2.0603 & 252.335 \\ \hline
+500 & 0.4739 & 2.0588 & 251.508 \\ \hline
+\dots & \dots & \dots & \dots \\ \hline
+100000 & 44.610 & 1.323 & 12.745081 \\ \hline
+\end{tabular}
+\end{table}
+
+Final parameters after optimization:
+
+\[
+w_0 = 44.610
+\]
+
+\[
+w_1 = 1.323
+\]
+
+\section{Conclusion}
+
+In this labwork, Linear Regression was implemented from scratch using Python. Gradient Descent was applied to optimize the weight and bias parameters by minimizing the Mean Squared Error loss function.
+
+The result shows that Gradient Descent successfully reduces the loss value over time and finds a better linear model for prediction.
+
+\end{document}

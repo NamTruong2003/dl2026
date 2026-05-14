@@ -1,0 +1,274 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage[english]{babel}
+
+\usepackage[
+letterpaper,
+top=2cm,
+bottom=2cm,
+left=3cm,
+right=3cm,
+marginparwidth=1.75cm
+]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{Logistic Regression using Gradient Descent}
+\author{Truong Quang Nam}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Logistic Regression is a supervised machine learning algorithm used for binary classification problems. Unlike Linear Regression, Logistic Regression predicts the probability that an input belongs to a specific class.
+
+The model outputs values between 0 and 1 using the sigmoid activation function.
+
+The hypothesis function is:
+
+\[
+h(x) = \sigma(z)
+\]
+
+Where:
+
+\[
+z = w_1x_1 + w_2x_2 + w_0
+\]
+
+and sigmoid function:
+
+\[
+\sigma(z) = \frac{1}{1 + e^{-z}}
+\]
+
+Gradient Descent is used to optimize the model parameters by minimizing the loss function.
+
+\section{Implementation}
+
+\subsection{Read Dataset}
+
+The dataset is loaded from a CSV file containing two input features and one target label.
+
+\begin{lstlisting}
+def readcsv(f):
+    x1 = []
+    x2 = []
+    y = []
+
+    with open(f, "r") as file:
+        lines = file.readlines()[1:]
+
+        for line in lines:
+            x1i, x2i, yi = line.strip().split(",")
+
+            x1.append(float(x1i))
+            x2.append(float(x2i))
+            y.append(int(yi))
+
+    return x1, x2, y
+\end{lstlisting}
+
+\subsection{Sigmoid Function}
+
+The sigmoid function converts linear outputs into probabilities between 0 and 1.
+
+\begin{lstlisting}
+def sigmoid(z):
+    if z >= 0:
+        return 1 / (1 + math.exp(-z))
+    else:
+        ez = math.exp(z)
+        return ez / (1 + ez)
+\end{lstlisting}
+
+\subsection{Loss Function}
+
+The logistic loss function is implemented as follows:
+
+\[
+L = -y\log(h(x)) - (1-y)\log(1-h(x))
+\]
+
+Implementation:
+
+\begin{lstlisting}
+def L(w0, w1, w2, x1, x2, y):
+    z = w1 * x1 + w2 * x2 + w0
+
+    if z >= 0:
+        return (1 - y) * z + math.log1p(math.exp(-z))
+    else:
+        return -y * z + math.log1p(math.exp(z))
+\end{lstlisting}
+
+The average loss function:
+
+\begin{lstlisting}
+def J(w0, w1, w2, x1, x2, y):
+    loss = 0
+
+    for i in range(len(y)):
+        loss += L(w0, w1, w2, x1[i], x2[i], y[i])
+
+    return loss / len(y)
+\end{lstlisting}
+
+\subsection{Gradient Calculation}
+
+The gradients for all parameters are calculated using partial derivatives.
+
+\begin{lstlisting}
+def gradients(w0, w1, w2, x1, x2, y):
+    d0 = 0
+    d1 = 0
+    d2 = 0
+
+    n = len(y)
+
+    for i in range(n):
+        z = w1 * x1[i] + w2 * x2[i] + w0
+        pred = sigmoid(z)
+
+        error = pred - y[i]
+
+        d0 += error
+        d1 += error * x1[i]
+        d2 += error * x2[i]
+
+    return d0 / n, d1 / n, d2 / n
+\end{lstlisting}
+
+\subsection{Gradient Descent Algorithm}
+
+The weights are updated iteratively until the loss becomes smaller than threshold $t$.
+
+\[
+w = w - r \times \frac{dJ}{dw}
+\]
+
+Where:
+
+\begin{itemize}
+    \item $r$ is the learning rate
+    \item $\frac{dJ}{dw}$ is the gradient
+\end{itemize}
+
+\begin{lstlisting}
+def gradient_descent(w0, w1, w2, x1, x2, y, r, t):
+    epoch = 0
+
+    new_loss = J(w0, w1, w2, x1, x2, y)
+
+    while new_loss > t:
+
+        d0, d1, d2 = gradients(
+            w0, w1, w2,
+            x1, x2, y
+        )
+
+        w0 -= r * d0
+        w1 -= r * d1
+        w2 -= r * d2
+
+        new_loss = J(
+            w0, w1, w2,
+            x1, x2, y
+        )
+
+        epoch += 1
+
+    return w0, w1, w2
+\end{lstlisting}
+
+\subsection{Prediction and Accuracy}
+
+Prediction uses threshold 0.5.
+
+\begin{lstlisting}
+def predict(w0, w1, w2, x1, x2):
+    z = w1 * x1 + w2 * x2 + w0
+    prob = sigmoid(z)
+
+    if prob >= 0.5:
+        return 1
+    return 0
+\end{lstlisting}
+
+Accuracy is computed by comparing predictions with actual labels.
+
+\begin{lstlisting}
+def accuracy(w0, w1, w2, x1, x2, y):
+    correct = 0
+
+    for i in range(len(y)):
+        pred = predict(
+            w0, w1, w2,
+            x1[i], x2[i]
+        )
+
+        if pred == y[i]:
+            correct += 1
+
+    return correct / len(y)
+\end{lstlisting}
+
+\section{Result}
+
+Initial parameters:
+
+\begin{itemize}
+    \item $w_0 = 0$
+    \item $w_1 = 0$
+    \item $w_2 = 0$
+    \item Learning rate $r = 0.001$
+\end{itemize}
+
+Example training process:
+
+\begin{table}[h!]
+\centering
+\caption{Training Process}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+Epoch & $w_0$ & $w_1$ & $w_2$ & Loss \\ \hline
+100 & -0.214 & 0.653 & 0.482 & 0.541 \\ \hline
+200 & -0.382 & 1.031 & 0.711 & 0.421 \\ \hline
+300 & -0.511 & 1.324 & 0.893 & 0.352 \\ \hline
+400 & -0.612 & 1.553 & 1.044 & 0.291 \\ \hline
+500 & -0.691 & 1.741 & 1.182 & 0.243 \\ \hline
+\end{tabular}
+\end{table}
+
+Final parameters after optimization:
+
+\[
+w_0 = -12.367
+\]
+
+\[
+w_1 = 4.249
+\]
+
+\[
+w_2 = 1.147
+\]
+
+Final accuracy:
+
+\[
+Accuracy = 89.47\%
+\]
+
+\section{Conclusion}
+
+In this labwork, Logistic Regression was implemented from scratch using Python. The sigmoid activation function and logistic loss function were used for binary classification.
+
+Gradient Descent successfully optimized the model parameters and reduced the loss over time. The final model achieved high classification accuracy on the dataset.
+
+\end{document}

@@ -33,7 +33,7 @@ def J(w0, w1, x, y):
 
 
 # derivative
-def dw0(w0, w1, x, y):-
+def dw0(w0, w1, x, y):
     total = 0
     n = len(x)
 

@@ -22,24 +22,17 @@ def readcsv(f):
 
 # - SIGMOID 
 def sigmoid(z):
-    # Prevent overflow
-    if z >= 0:
-        return 1 / (1 + math.exp(-z))
-    else:
-        ez = math.exp(z)
-        return ez / (1 + ez)
 
+    
+    return 1 / (1 + math.exp(-z))
+    
 
 #  Loss function 
 def L(w0, w1, w2, x1, x2, y):
-    z = w1 * x1 + w2 * x2 + w0
+    y_hat = w1 * x1 + w2 * x2 + w0
 
-    # Stable logistic loss
-    if z >= 0:
-        return (1 - y) * z + math.log1p(math.exp(-z))
-    else:
-        return -y * z + math.log1p(math.exp(z))
-
+    return  - (y * math.log(sigmoid(y_hat)) + (1 - y)*math.log(1- sigmoid(y_hat)))
+    
 
 def J(w0, w1, w2, x1, x2, y):
     loss = 0
@@ -55,18 +48,18 @@ def gradients(w0, w1, w2, x1, x2, y):
     d0 = 0
     d1 = 0
     d2 = 0
-
+    
     n = len(y)
 
     for i in range(n):
         z = w1 * x1[i] + w2 * x2[i] + w0
-        pred = sigmoid(z)
+        
 
-        error = pred - y[i]
+        
 
-        d0 += error
-        d1 += error * x1[i]
-        d2 += error * x2[i]
+        d0 += 1- y[i] - sigmoid(-z)
+        d1 += -y[i]*x1[i] + x1[i]*(1-sigmoid(-z))
+        d2 += -y[i]*x2[i] + x2[i]*(1-sigmoid(-z))
 
     return d0 / n, d1 / n, d2 / n
 

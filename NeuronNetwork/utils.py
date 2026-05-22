@@ -3,6 +3,13 @@ import os
 import json
 def sigmoid(z):
     return 1 / (1 + math.exp(-z))
+def sigmoid_derivative(a):
+    result = 0
+    if isinstance(a,list):
+        result = [n * (1.0 - n) for n in a]
+    else:
+        result = a * (1.0 - a)
+    return result
 def readInput(file):
     with open(file,"r") as file:
         lines = [line.strip() for line in file if line.strip()]
@@ -142,4 +149,34 @@ def parse_nn_config(file_path):
 
     except (IndexError, ValueError):
         return None
-    
+def elementwise_multiply(matrix_a, matrix_b):
+    A = matrix_a
+    B = matrix_b
+
+    is_A_1d = not isinstance(A, list) or (len(A) > 0 and not isinstance(A[0], list))
+    is_B_1d = not isinstance(B, list) or (len(B) > 0 and not isinstance(B[0], list))
+
+    if is_A_1d != is_B_1d:
+        return "Error: Matrices must have identical dimensions for elementwise multiplication!"
+
+    if is_A_1d:
+        if len(A) != len(B):
+            return "Error: Dimensions must match!"
+        result = [0 for _ in range(len(A))]
+        for i in range(len(A)):
+            result[i] = A[i] * B[i]
+        return result
+
+    rows_A = len(A)
+    cols_A = len(A[0])
+    rows_B = len(B)
+    cols_B = len(B[0])
+
+    if rows_A != rows_B or cols_A != cols_B:
+        return "Error: Dimensions must match!"
+
+    result = [[0 for _ in range(cols_A)] for _ in range(rows_A)]
+    for i in range(rows_A):
+        for j in range(cols_A):
+            result[i][j] = A[i][j] * B[i][j]
+    return result
